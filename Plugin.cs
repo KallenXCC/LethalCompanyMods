@@ -42,8 +42,26 @@ namespace SideQuests
             harmony.PatchAll(typeof(HUDManagerPatch));
             harmony.PatchAll(typeof(TerminalPatch));
             harmony.PatchAll(typeof(RoundManagerPatch));
+            harmony.PatchAll(typeof(DoublewingAIPatch));
             harmony.PatchAll(typeof(HoarderBugAIPatch));
+            harmony.PatchAll(typeof(CentipedeAIPatch));
             harmony.PatchAll(typeof(CrawlerAIPatch));
+            harmony.PatchAll(typeof(SandSpiderAIPatch));
+            harmony.PatchAll(typeof(MaskedPlayerEnemyPatch));
+            harmony.PatchAll(typeof(BaboonBirdAIPatch));
+            harmony.PatchAll(typeof(NutcrackerEnemyAIPatch));
+            harmony.PatchAll(typeof(FlowermanAIPatch));
+            harmony.PatchAll(typeof(MouthDogAIPatch));
+            harmony.PatchAll(typeof(ForestGiantAIPatch));
+            harmony.PatchAll(typeof(BlobAIPatch));
+            harmony.PatchAll(typeof(PufferAIPatch));
+            harmony.PatchAll(typeof(DressGirlAIPatch));
+            harmony.PatchAll(typeof(HauntedMaskItemPatch));
+            harmony.PatchAll(typeof(TurretPatch));
+            harmony.PatchAll(typeof(LandminePatch));
+            harmony.PatchAll(typeof(GiftBoxItemPatch));
+            harmony.PatchAll(typeof(WhoopieCushionItemPatch));
+            harmony.PatchAll(typeof(StormyWeatherPatch));
         }
     }
 }
