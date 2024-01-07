@@ -128,6 +128,10 @@ namespace SideQuests.Patches
             secretList[ELECTRICITY_SID] = "Ben Franklin";
 
             RandomizeQuest();
+
+            questID = 2;
+            secretID = ELECTRICITY_SID;
+            questDesc[2] = "Secret Quest:\n" + secretList[secretID];
         }
 
         public static void RandomizeQuest()
@@ -270,7 +274,8 @@ namespace SideQuests.Patches
                 depositItemsDesk.SellItemsOnServer();
             }
 
-            PatchCustomStates.RandomizeQuest();
+            // PatchCustomStates.RandomizeQuest();
+            PatchCustomStates.taskCompleted = false;
         }
 
         [HarmonyPatch(nameof(Terminal.BeginUsingTerminal))]
@@ -608,7 +613,6 @@ namespace SideQuests.Patches
     {
         private static bool aliveBeforeLightning = false;
         private static bool holdingAKey = false;
-        private static string heldObjName = "";
 
         [HarmonyPatch(nameof(StormyWeather.LightningStrike))]
         [HarmonyPrefix]
@@ -625,16 +629,18 @@ namespace SideQuests.Patches
                 {
                     aliveBeforeLightning = false;
                 }
-                if (playerControllerB.currentlyHeldObject != null)
+                string heldObjName;
+                holdingAKey = false;
+                for(int i = 0; i < playerControllerB.ItemSlots.Length; i++)
                 {
-                    heldObjName = playerControllerB.currentlyHeldObject.itemProperties.itemName;
-                    if(heldObjName.Contains("Key"))
+                    if (playerControllerB.ItemSlots[i] != null)
                     {
-                        holdingAKey = true;
+                        heldObjName = playerControllerB.ItemSlots[i].itemProperties.itemName;
+                        if (heldObjName.Contains("Key"))
+                        {
+                            holdingAKey = true;
+                        }
                     }
-                } else
-                {
-                    heldObjName = "";
                 }
             }
         }
@@ -654,8 +660,6 @@ namespace SideQuests.Patches
                     }
                 }
             }
-            aliveBeforeLightning = false;
-            holdingAKey = false;
         }
     }
 }
