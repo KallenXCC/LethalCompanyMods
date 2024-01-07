@@ -18,7 +18,7 @@ namespace SideQuests
     {
         private const string modGUID = "KallenXCC.SideQuests";
         private const string modName = "Side Quests";
-        private const string modVersion = "0.0.0.3";
+        private const string modVersion = "0.3.1";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 

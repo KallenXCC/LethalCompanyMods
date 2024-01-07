@@ -65,7 +65,7 @@ namespace SideQuests.Patches
             itemList[4] = "Metal sheet";
             itemList[5] = "Bottles";
             itemList[6] = "Tea kettle";
-            itemList[7] = "Brass bell";
+            itemList[7] = "Bell";
             itemList[8] = "Plastic fish";
             itemList[9] = "Flask";
             itemList[10] = "Toy cube";
@@ -103,7 +103,7 @@ namespace SideQuests.Patches
             itemList[42] = "Candy";
             itemList[43] = "Pill bottle";
             itemList[44] = "Apparatus";
-            itemList[45] = "Bee Hive";
+            itemList[45] = "Hive";
 
             enemyList[MANTICOIL_ID] = "Manticoil";
             enemyList[LOOTBUG_ID] = "Loot Bug";
@@ -181,6 +181,7 @@ namespace SideQuests.Patches
         {
             taskCompleted = true;
             HUDManager.Instance.ClearControlTips();
+            HUDManager.Instance.UIAudio.PlayOneShot(HUDManager.Instance.globalNotificationSFX);
         }
 
         public static string GetItemName()
@@ -242,13 +243,17 @@ namespace SideQuests.Patches
 
         static void CompleteQuest()
         {
-            GrabbableObject[] temp = new GrabbableObject[0];
             Terminal terminal = UnityEngine.Object.FindObjectOfType<Terminal>();
             int reward = PatchCustomStates.GetReward();
             int newGroupCredits = terminal.groupCredits + reward;
 
+            GrabbableObject[] questReward = new GrabbableObject[0];
+            /*questReward[0].itemProperties.itemName = PatchCustomStates.questDesc[PatchCustomStates.questID];
+            questReward[0].itemProperties.isScrap = true;
+            questReward[0].scrapValue = reward;*/
+
             terminal.groupCredits = newGroupCredits;
-            HUDManager.Instance.DisplayCreditsEarning(reward, temp, newGroupCredits);
+            HUDManager.Instance.DisplayCreditsEarning(reward, questReward, newGroupCredits);
             StartOfRound.Instance.gameStats.scrapValueCollected += reward;
             TimeOfDay.Instance.quotaFulfilled += reward;
             TimeOfDay.Instance.UpdateProfitQuotaCurrentTime();
@@ -257,6 +262,13 @@ namespace SideQuests.Patches
             terminal.BuyItemsServerRpc(terminal.orderedItemsFromTerminal.ToArray(), newGroupCredits, terminal.numberOfItemsInDropship);
             terminal.orderedItemsFromTerminal.Clear(); */
             terminal.SyncGroupCreditsServerRpc(newGroupCredits, terminal.numberOfItemsInDropship);
+            
+            DepositItemsDesk depositItemsDesk = UnityEngine.Object.FindObjectOfType<DepositItemsDesk>();
+            //depositItemsDesk.AddObjectToDeskServerRpc(NetworkObjectReference.op_Implicit(((Component)playerWhoTriggered.currentlyHeldObjectServer).gameObject.GetComponent<NetworkObject>()));
+            if (depositItemsDesk != null)
+            {
+                depositItemsDesk.SellItemsOnServer();
+            }
 
             PatchCustomStates.RandomizeQuest();
         }
