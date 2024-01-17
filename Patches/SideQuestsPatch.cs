@@ -2,18 +2,19 @@
 using HarmonyLib;
 using TMPro;
 using System;
-using System.Collections.Generic;
+/* using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
-using BepInEx.Logging;
+using BepInEx.Logging; */
 using UnityEngine;
 using System.Collections;
-using System.Reflection;
+/* using System.Reflection;
 using System.Xml.Linq;
 using UnityEngine.EventSystems;
-using UnityEngine.Windows;
+using UnityEngine.Windows; */
+using Unity.Netcode;
 
 namespace SideQuests.Patches
 {
@@ -28,9 +29,9 @@ namespace SideQuests.Patches
 
         public static string turnInQuest = "Task Completed! \nUse Terminal to Complete";
         public static string questCompleteText = "Quest Completed!";
-        public static string abandonQuestText = "\nType 'abandon' to abandon quest";
+        public static string abandonQuestText = "\nEnter 'abandon' in terminal\nto abandon quest";
 
-        readonly static string[] itemList = new string[46];
+        readonly static string[] itemList = new string[45];
         readonly static string[] enemyList = new string[11];
         public const int MANTICOIL_ID = 0;
         public const int LOOTBUG_ID = 1;
@@ -72,38 +73,37 @@ namespace SideQuests.Patches
             itemList[11] = "Magnifying glass";
             itemList[12] = "Hair brush";
             itemList[13] = "Stop sign";
-            itemList[14] = "Robot toy";
-            itemList[15] = "Cookie mold pan";
-            itemList[16] = "Dust pan";
-            itemList[17] = "Clown horn";
-            itemList[18] = "Coffee mug";
-            itemList[19] = "Tragedy";
-            itemList[20] = "Airhorn";
-            itemList[21] = "Comedy";
-            itemList[22] = "Fancy lamp";
-            itemList[23] = "Red soda";
-            itemList[24] = "Egg beater";
-            itemList[25] = "Whoopie-Cushion";
-            itemList[26] = "DIY-Flashbang";
-            itemList[27] = "Teeth";
-            itemList[28] = "Toothpaste";
-            itemList[29] = "Old phone";
-            itemList[30] = "Jar of pickles";
-            itemList[31] = "Rubber Ducky";
-            itemList[32] = "Remote";
-            itemList[33] = "Steering wheel";
-            itemList[34] = "Golden cup";
-            itemList[35] = "Yield sign";
-            itemList[36] = "Perfume bottle";
-            itemList[37] = "Ring";
-            itemList[38] = "Laser pointer";
-            itemList[39] = "Chemical jug";
-            itemList[40] = "Painting";
-            itemList[41] = "Cash register";
-            itemList[42] = "Candy";
-            itemList[43] = "Pill bottle";
-            itemList[44] = "Apparatus";
-            itemList[45] = "Hive";
+            itemList[14] = "Cookie mold pan";
+            itemList[15] = "Dust pan";
+            itemList[16] = "Clown horn";
+            itemList[17] = "Coffee mug";
+            itemList[18] = "Tragedy";
+            itemList[19] = "Airhorn";
+            itemList[20] = "Comedy";
+            itemList[21] = "Fancy lamp";
+            itemList[22] = "Red soda";
+            itemList[23] = "Egg beater";
+            itemList[24] = "Whoopie-Cushion";
+            itemList[25] = "DIY-Flashbang";
+            itemList[26] = "Teeth";
+            itemList[27] = "Toothpaste";
+            itemList[28] = "Old phone";
+            itemList[29] = "Jar of pickles";
+            itemList[30] = "Rubber Ducky";
+            itemList[31] = "Remote";
+            itemList[32] = "Steering wheel";
+            itemList[33] = "Golden cup";
+            itemList[34] = "Yield sign";
+            itemList[35] = "Perfume bottle";
+            itemList[36] = "Ring";
+            itemList[37] = "Laser pointer";
+            itemList[38] = "Chemical jug";
+            itemList[39] = "Painting";
+            itemList[40] = "Cash register";
+            itemList[41] = "Candy";
+            itemList[42] = "Pill bottle";
+            itemList[43] = "Apparatus";
+            itemList[44] = "Hive";
 
             enemyList[MANTICOIL_ID] = "Manticoil";
             enemyList[LOOTBUG_ID] = "Loot Bug";
@@ -147,10 +147,10 @@ namespace SideQuests.Patches
                     randomNumber = random.Next(0, 10);
                 } else if (randomNumber < 9) // medium item 30%
                 {
-                    randomNumber = random.Next(10, 27);
+                    randomNumber = random.Next(10, 26);
                 } else // hard item 10%
                 {
-                    randomNumber = random.Next(27, itemList.Length);
+                    randomNumber = random.Next(26, itemList.Length);
                 }
                 itemID = randomNumber;
                 questDesc[0] = "Collect Quest:\n" + itemList[itemID];
@@ -185,7 +185,7 @@ namespace SideQuests.Patches
         {
             taskCompleted = true;
             HUDManager.Instance.ClearControlTips();
-            HUDManager.Instance.UIAudio.PlayOneShot(HUDManager.Instance.globalNotificationSFX);
+            HUDManager.Instance.DisplayTip("Task Completed", questDesc[questID]);
         }
 
         public static string GetItemName()
@@ -265,17 +265,23 @@ namespace SideQuests.Patches
             terminal.orderedItemsFromTerminal.Add(1);
             terminal.BuyItemsServerRpc(terminal.orderedItemsFromTerminal.ToArray(), newGroupCredits, terminal.numberOfItemsInDropship);
             terminal.orderedItemsFromTerminal.Clear(); */
-            terminal.SyncGroupCreditsServerRpc(newGroupCredits, terminal.numberOfItemsInDropship);
+            NetworkManager networkManager = terminal.NetworkManager;
+            if(networkManager != null && networkManager.IsServer)
+            {
+                terminal.SyncGroupCreditsClientRpc(newGroupCredits, terminal.numberOfItemsInDropship);
+            } else
+            {
+                terminal.SyncGroupCreditsServerRpc(newGroupCredits, terminal.numberOfItemsInDropship);
+            }
             
             DepositItemsDesk depositItemsDesk = UnityEngine.Object.FindObjectOfType<DepositItemsDesk>();
-            //depositItemsDesk.AddObjectToDeskServerRpc(NetworkObjectReference.op_Implicit(((Component)playerWhoTriggered.currentlyHeldObjectServer).gameObject.GetComponent<NetworkObject>()));
+            /* depositItemsDesk.AddObjectToDeskServerRpc(NetworkObjectReference.op_Implicit(((Component)playerWhoTriggered.currentlyHeldObjectServer).gameObject.GetComponent<NetworkObject>()));
             if (depositItemsDesk != null)
             {
                 depositItemsDesk.SellItemsOnServer();
-            }
+            } */
 
-            // PatchCustomStates.RandomizeQuest();
-            PatchCustomStates.taskCompleted = false;
+            PatchCustomStates.RandomizeQuest();
         }
 
         [HarmonyPatch(nameof(Terminal.BeginUsingTerminal))]
