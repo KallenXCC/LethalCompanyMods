@@ -1,6 +1,12 @@
 # SideQuests
 A WIP mod for side quests.
 
+v0.4.0
+-Added SQNetworkManager
+-Synced quota and credits
+-Refactor
+-Fixed some quests
+
 v0.3.1
 -Added SFX when completing task
 -Fixed some item names
