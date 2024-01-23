@@ -9,10 +9,6 @@
         public static int secretID = 0;
         public static bool taskCompleted = false;
 
-        public static string turnInQuest = "Task Completed! \nUse Terminal to Complete";
-        public static string questCompleteText = "Quest Completed!";
-        public static string abandonQuestText = "\nEnter 'abandon' in terminal\nto abandon quest";
-
         readonly static string[] itemList = new string[45];
         readonly static string[] enemyList = new string[11];
         public const int MANTICOIL_ID = 0;
@@ -110,8 +106,7 @@
             secretList[ELECTRICITY_SID] = "Ben Franklin";
 
             RandomizeQuest();
-
-            questDesc[2] = "Secret Quest:\n" + secretList[secretID];
+            HUDManager.Instance.DisplayTip("New Quest", questDesc[questID]);
         }
 
         public static void RandomizeQuest()
@@ -159,6 +154,7 @@
                 secretID = randomNumber;
                 questDesc[2] = "Secret Quest:\n" + secretList[secretID];
             }
+            //HUDManager.Instance.DisplayTip("New Quest", questDesc[questID]);
         }
 
         public static void CompleteTask()

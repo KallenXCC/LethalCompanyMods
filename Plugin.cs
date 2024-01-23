@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using SideQuests.Patches;
 using System.Reflection;
 using UnityEngine;
 using System.IO;
@@ -14,7 +13,7 @@ namespace SideQuests
     {
         private const string modGUID = "KallenXCC.SideQuests";
         private const string modName = "SideQuests";
-        private const string modVersion = "0.4.0";
+        private const string modVersion = "0.4.1";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -57,39 +56,8 @@ namespace SideQuests
             netManagerPrefab.AddComponent<SQNetworkManager>();
 
             mls.LogInfo("harmony patching base...");
-            harmony.PatchAll(typeof(SideQuestsBase));
-            harmony.PatchAll(typeof(SQNetworkManager));
-            harmony.PatchAll(typeof(SQCustomStates));
-            mls.LogInfo("patching UI...");
-            harmony.PatchAll(typeof(GameNetworkManagerPatch));
-            harmony.PatchAll(typeof(StartOfRoundPatch));
-            harmony.PatchAll(typeof(HUDManagerPatch));
-            harmony.PatchAll(typeof(TerminalPatch));
-            harmony.PatchAll(typeof(RoundManagerPatch));
-            mls.LogInfo("patching KillQuests...");
-            harmony.PatchAll(typeof(DoublewingAIPatch));
-            harmony.PatchAll(typeof(HoarderBugAIPatch));
-            harmony.PatchAll(typeof(CentipedeAIPatch));
-            harmony.PatchAll(typeof(CrawlerAIPatch));
-            harmony.PatchAll(typeof(SandSpiderAIPatch));
-            harmony.PatchAll(typeof(MaskedPlayerEnemyPatch));
-            harmony.PatchAll(typeof(BaboonBirdAIPatch));
-            harmony.PatchAll(typeof(NutcrackerEnemyAIPatch));
-            harmony.PatchAll(typeof(FlowermanAIPatch));
-            harmony.PatchAll(typeof(MouthDogAIPatch));
-            harmony.PatchAll(typeof(ForestGiantAIPatch));
-            mls.LogInfo("patching SecretQuests...");
-            harmony.PatchAll(typeof(BlobAIPatch));
-            harmony.PatchAll(typeof(PufferAIPatch));
-            harmony.PatchAll(typeof(DressGirlAIPatch));
-            harmony.PatchAll(typeof(HauntedMaskItemPatch));
-            harmony.PatchAll(typeof(TurretPatch));
-            harmony.PatchAll(typeof(LandminePatch));
-            harmony.PatchAll(typeof(GiftBoxItemPatch));
-            harmony.PatchAll(typeof(WhoopieCushionItemPatch));
-            harmony.PatchAll(typeof(StormyWeatherPatch));
+            harmony.PatchAll();
             mls.LogInfo("patching finished");
-            
         }
     }
 }

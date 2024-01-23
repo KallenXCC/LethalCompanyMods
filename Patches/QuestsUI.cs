@@ -16,7 +16,7 @@ namespace SideQuests.Patches
         static void AddToPrefabs(ref GameNetworkManager __instance)
         {
             __instance.GetComponent<NetworkManager>().AddNetworkPrefab(SideQuestsBase.Instance.netManagerPrefab);
-            Console.WriteLine("Added SQNetworkManager Prefab");
+            //Console.WriteLine("Added SQNetworkManager Prefab");
         }
     }
 
@@ -31,7 +31,7 @@ namespace SideQuests.Patches
             {
                 GameObject go = GameObject.Instantiate(SideQuestsBase.Instance.netManagerPrefab);
                 go.GetComponent<NetworkObject>().Spawn();
-                Console.WriteLine("Spawned SQNetworkManager");
+                //Console.WriteLine("Spawned SQNetworkManager");
             }
         }
     }
@@ -45,7 +45,7 @@ namespace SideQuests.Patches
         {
             if (SQCustomStates.taskCompleted)
             {
-                ___controlTipLines[0].text = SQCustomStates.turnInQuest;
+                ___controlTipLines[0].text = "Task Completed!\nUse Terminal to complete";
             }
             else
             {
@@ -67,7 +67,7 @@ namespace SideQuests.Patches
 
         [HarmonyPatch(nameof(Terminal.BeginUsingTerminal))]
         [HarmonyPostfix]
-        static void BeginUsingTerminalPatch(Terminal __instance)
+        static void BeginUsingTerminalPatch()
         {
             string[] allLines = new string[3];
             if (StartOfRound.Instance.localPlayerUsingController)
@@ -78,47 +78,22 @@ namespace SideQuests.Patches
             {
                 allLines[0] = "Quit Terminal : [TAB]";
             }
-            allLines[1] = "";
-            if (SQCustomStates.taskCompleted)
+            if(SQCustomStates.taskCompleted)
             {
-                allLines[2] = SQCustomStates.questCompleteText;
-
-                int reward = SQCustomStates.GetReward();
-                int newGroupCredits = __instance.groupCredits + reward;
-                GrabbableObject[] questReward = new GrabbableObject[0];
-                int quotaFulfilled = TimeOfDay.Instance.quotaFulfilled + reward;
-                // int totalScrapValue = StartOfRound.Instance.gameStats.scrapValueCollected + reward;
-
-                __instance.groupCredits = newGroupCredits;
-                HUDManager.Instance.DisplayCreditsEarning(reward, questReward, newGroupCredits);
-                if (__instance.IsHost || __instance.IsServer)
-                {
-                    Console.WriteLine("Host/Server SQN request");
-                    SQNetworkManager.Instance.SyncQuotaFulfilledClientRpc(quotaFulfilled);
-                    Console.WriteLine("Host/Server SQN request creditSync");
-                    SQNetworkManager.Instance.SyncGroupCreditsClientRpc(newGroupCredits);
-                } 
-                else
-                {
-                    Console.WriteLine("Client SQN request quotaSync");
-                    SQNetworkManager.Instance.SyncQuotaFulfilledServerRpc(quotaFulfilled);
-                    Console.WriteLine("Client SQN request creditSync");
-                    SQNetworkManager.Instance.SyncGroupCreditsServerRpc(newGroupCredits);
-                }
-
-                SQCustomStates.RandomizeQuest();
+                allLines[1] = "Task Completed!";
+                allLines[2] = "\nEnter 'complete' in terminal\nto complete quest";
             }
             else
             {
                 allLines[1] = SQCustomStates.questDesc[SQCustomStates.questID];
-                allLines[2] = SQCustomStates.abandonQuestText;
+                allLines[2] = "\nEnter 'abandon' in terminal\nto abandon quest";
             }
             ((MonoBehaviour)HUDManager.Instance).StartCoroutine(ChangeControlTipMultipleDelayed(allLines));
         }
 
         [HarmonyPatch(nameof(Terminal.OnSubmit))]
         [HarmonyPrefix]
-        static void OnSubmitPatch(ref TMP_InputField ___screenText)
+        static void OnSubmitPatch(ref TMP_InputField ___screenText, Terminal __instance)
         {
             if (___screenText.text.Length >= 7)
             {
@@ -126,6 +101,42 @@ namespace SideQuests.Patches
                 if (___screenText.text.Contains("abandon"))
                 {
                     SQCustomStates.AbandonQuest();
+                    // ___screenText.text = "Quest Abandoned";
+                }
+                if (___screenText.text.Contains("complete"))
+                {
+                    if (SQCustomStates.taskCompleted)
+                    {
+                        HUDManager.Instance.DisplayTip("Quest Complete!", SQCustomStates.questDesc[SQCustomStates.questID]);
+                        int reward = SQCustomStates.GetReward();
+                        int newGroupCredits = __instance.groupCredits + reward;
+                        GrabbableObject[] questReward = new GrabbableObject[0];
+                        int quotaFulfilled = TimeOfDay.Instance.quotaFulfilled + reward;
+                        // int totalScrapValue = StartOfRound.Instance.gameStats.scrapValueCollected + reward;
+
+                        __instance.groupCredits = newGroupCredits;
+                        HUDManager.Instance.DisplayCreditsEarning(reward, questReward, newGroupCredits);
+                        if (__instance.IsHost || __instance.IsServer)
+                        {
+                            //Console.WriteLine("Host/Server SQN request");
+                            SQNetworkManager.Instance.SyncQuotaFulfilledClientRpc(quotaFulfilled);
+                            //Console.WriteLine("Host/Server SQN request creditSync");
+                            SQNetworkManager.Instance.SyncGroupCreditsClientRpc(newGroupCredits);
+                        }
+                        else
+                        {
+                            //Console.WriteLine("Client SQN request quotaSync");
+                            SQNetworkManager.Instance.SyncQuotaFulfilledServerRpc(quotaFulfilled);
+                            //Console.WriteLine("Client SQN request creditSync");
+                            SQNetworkManager.Instance.SyncGroupCreditsServerRpc(newGroupCredits);
+                        }
+
+                        SQCustomStates.RandomizeQuest();
+                        // ___screenText.text = "Quest Completed";
+                    } else
+                    {
+                        // ___screenText.text = "Task Incomplete";
+                    }
                 }
             }
         }
