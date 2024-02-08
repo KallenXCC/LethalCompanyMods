@@ -1,6 +1,9 @@
 # SideQuests
 A WIP mod for side quests.
 
+### v0.4.2
+ - Changed 'complete' keyword to 'submit' since 'complete' triggers routing to the company 
+
 ### v0.4.1
  - Completed quests are now submitted manually instead of automatically
 
