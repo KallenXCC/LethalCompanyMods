@@ -45,7 +45,7 @@ namespace SideQuests.Patches
         {
             if (SQCustomStates.taskCompleted)
             {
-                ___controlTipLines[0].text = "Task Completed!\nUse Terminal to complete";
+                ___controlTipLines[0].text = "Task Completed!\nUse Terminal to submit";
             }
             else
             {
@@ -81,7 +81,7 @@ namespace SideQuests.Patches
             if(SQCustomStates.taskCompleted)
             {
                 allLines[1] = "Task Completed!";
-                allLines[2] = "\nEnter 'complete' in terminal\nto complete quest";
+                allLines[2] = "\nEnter 'submit' in terminal\nto complete quest";
             }
             else
             {
@@ -103,7 +103,7 @@ namespace SideQuests.Patches
                     SQCustomStates.AbandonQuest();
                     // ___screenText.text = "Quest Abandoned";
                 }
-                if (___screenText.text.Contains("complete"))
+                if (___screenText.text.Contains("submit"))
                 {
                     if (SQCustomStates.taskCompleted)
                     {
